@@ -27,7 +27,7 @@ public class CategoryController {
     BaseCategory2Service baseCategory2Service;
 
     /**
-     * 1. 获取所有一级分类
+     * 1. 获取所有商品一级分类
      */
     @GetMapping("/getCategory1")
     public Result getCategory1() {
