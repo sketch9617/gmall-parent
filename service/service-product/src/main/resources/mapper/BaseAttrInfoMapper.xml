@@ -15,4 +15,20 @@
         id,attr_name,category_id,
         category_level
     </sql>
+
+    <!--1. 查询某个分类下的所有平台属性-->
+    <select id="getAttrInfoAndValueByCategoryId" resultMap="AttrInfoAndValue">
+        select bai.*, bav.id vid,bav.value_name ,bav.attr_id
+        from base_attr_info bai left join base_attr_value bav on bai.id = bav.attr_id
+        where (bai.category_id=#{c1Id} and bai.category_level=1)
+           or (bai.category_id=#{c2Id} and bai.category_level=2)
+           or (bai.category_id=#{c3Id} and bai.category_level=3)
+    </select>
+    <!--自定义attrValue结果集-->
+    <resultMap id="AttrInfoAndValue" type="com.atguigu.gmall.model.product.BaseAttrInfo" autoMapping="true">
+        <id column="id" property="id"/>
+        <collection property="attrValueList" ofType="com.atguigu.gmall.model.product.BaseAttrValue" autoMapping="true">
+            <id column="vid" property="id"></id>
+        </collection>
+    </resultMap>
 </mapper>
