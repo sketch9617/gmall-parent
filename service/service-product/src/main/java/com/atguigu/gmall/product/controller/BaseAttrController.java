@@ -23,8 +23,6 @@ public class BaseAttrController {
     @Autowired
     BaseAttrValueService baseAttrValueService;
 
-    // TODO: 2022/8/23
-
     /**
      * 1. 查询某个分类下的所有平台属性
      */
