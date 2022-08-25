@@ -4,9 +4,10 @@ import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.model.product.BaseTrademark;
 import com.atguigu.gmall.product.service.BaseTrademarkService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author sketch
@@ -18,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class BaseTrademarkController {
     @Autowired
     BaseTrademarkService baseTradeMarkService;
-
-    // TODO: 2022/8/24
 
     /**
      * 1. 分页查询所有品牌
@@ -66,5 +65,14 @@ public class BaseTrademarkController {
     public Result deletebaseTradeMark(@PathVariable("tid") Long tid) {
         baseTradeMarkService.removeById(tid);
         return Result.ok();
+    }
+
+    /**
+     * 6. 获取所有品牌
+     */
+    @GetMapping("/baseTrademark/getTrademarkList")
+    public Result getTrademarkList() {
+        List<BaseTrademark> list = baseTradeMarkService.list();
+        return Result.ok(list);
     }
 }
