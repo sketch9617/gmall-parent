@@ -1,7 +1,6 @@
 server:
   port: 9000
 
-
 #数据源配置好
 spring:
   zipkin:
@@ -13,3 +12,12 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.jdbc.Driver
+
+# 自定义配置
+app:
+ # Minio配置
+  minio:
+    endpointUrl: http://192.168.200.100:9000
+    accessKey: admin
+    secretKey: admin123456
+    bucketName: gmall

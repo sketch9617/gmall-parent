@@ -24,7 +24,7 @@
     </properties>
 
 
-    <!--    不写依赖管理，直接导入依赖-->
+    <!--不写依赖管理，直接导入依赖-->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
