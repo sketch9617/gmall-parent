@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author sketch
  * @date 2022/8/26 10:25
- * @description 前端远程调用
+ * @description web-all远程调用service-product查询所有分类
  */
 @RestController
 @RequestMapping("/api/inner/rpc/product")

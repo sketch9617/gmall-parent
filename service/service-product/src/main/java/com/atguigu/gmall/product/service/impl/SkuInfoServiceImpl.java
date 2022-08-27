@@ -1,19 +1,17 @@
 package com.atguigu.gmall.product.service.impl;
 
-import com.atguigu.gmall.model.product.SkuAttrValue;
-import com.atguigu.gmall.model.product.SkuImage;
-import com.atguigu.gmall.model.product.SkuInfo;
-import com.atguigu.gmall.model.product.SkuSaleAttrValue;
-import com.atguigu.gmall.product.service.SkuAttrValueService;
-import com.atguigu.gmall.product.service.SkuImageService;
-import com.atguigu.gmall.product.service.SkuSaleAttrValueService;
+import com.atguigu.gmall.model.product.*;
+import com.atguigu.gmall.model.to.CategoryViewTo;
+import com.atguigu.gmall.model.to.SkuDetailTo;
+import com.atguigu.gmall.product.mapper.BaseCategory3Mapper;
+import com.atguigu.gmall.product.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.atguigu.gmall.product.service.SkuInfoService;
 import com.atguigu.gmall.product.mapper.SkuInfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -29,12 +27,14 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
     SkuInfoMapper skuInfoMapper;
     @Autowired
     SkuImageService skuImageService;
-
     @Autowired
     SkuAttrValueService skuAttrValueService;
-
     @Autowired
     SkuSaleAttrValueService skuSaleAttrValueService;
+    @Resource
+    BaseCategory3Mapper baseCategory3Mapper;
+    @Autowired
+    SpuSaleAttrService spuSaleAttrService;
 
     @Override
     public void saveSkuInfo(SkuInfo info) {
@@ -73,6 +73,35 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
     @Override
     public void cancelSale(Long skuId) {
         skuInfoMapper.updateIsSale(skuId,0);
+    }
+
+    @Override
+    public SkuDetailTo getSkuDetail(Long skuId) {
+
+        SkuDetailTo detailTo = new SkuDetailTo();
+        //1. 查询存在sku信息
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+
+        //2. 获取sku基本信息
+        detailTo.setSkuInfo(skuInfo);
+
+        //3. 根据skuId获取对应图片
+        List<SkuImage> imageList = skuImageService.getSkuImage(skuId);
+        skuInfo.setSkuImageList(imageList);
+
+        //4. 获取sku完整分类信息
+        CategoryViewTo categoryViewTo = baseCategory3Mapper.getCategoryView(skuInfo.getCategory3Id());
+        detailTo.setCategoryView(categoryViewTo);
+
+        //5. 获取sku商品实时价格
+        BigDecimal price = skuInfoMapper.getRealPrice(skuId);
+        detailTo.setPrice(price);
+
+        //6. 获取spu下的所有sku销售属性组合并排序
+        List<SpuSaleAttr> saleAttrList = spuSaleAttrService.getSaleAttrAndValueMarkSku(skuInfo.getSpuId(),skuId);
+        detailTo.setSpuSaleAttrList(saleAttrList);
+
+        return detailTo;
     }
 }
 
