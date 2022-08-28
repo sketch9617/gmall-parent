@@ -101,6 +101,11 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
         List<SpuSaleAttr> saleAttrList = spuSaleAttrService.getSaleAttrAndValueMarkSku(skuInfo.getSpuId(),skuId);
         detailTo.setSpuSaleAttrList(saleAttrList);
 
+        //7. 获取sku同级别所有销售属性组合,封装成json
+        Long spuId = skuInfo.getSpuId();
+        String valuejson = spuSaleAttrService.getAllSkuSaleAttrValueJson(spuId);
+        detailTo.setValuesSkuJson(valuejson);
+
         return detailTo;
     }
 }
