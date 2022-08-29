@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.atguigu.gmall.product.mapper.SkuInfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
     SpuSaleAttrService spuSaleAttrService;
 
     @Override
+    @Transactional
     public void saveSkuInfo(SkuInfo info) {
         //1、sku基本信息保存到 sku_info
         save(info);
@@ -75,6 +77,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
         skuInfoMapper.updateIsSale(skuId,0);
     }
 
+    /*
+    //商品详情,已抽取
     @Override
     public SkuDetailTo getSkuDetail(Long skuId) {
 
@@ -107,6 +111,24 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
         detailTo.setValuesSkuJson(valuejson);
 
         return detailTo;
+    }*/
+
+    @Override
+    public BigDecimal get1010Price(Long skuId) {
+        BigDecimal price = skuInfoMapper.getRealPrice(skuId);
+        return price;
+    }
+
+    @Override
+    public SkuInfo getDetailSkuInfo(Long skuId) {
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+        return skuInfo;
+    }
+
+    @Override
+    public List<SkuImage> getDetailSkuImages(Long skuId) {
+        List<SkuImage> imageList = skuImageService.getSkuImage(skuId);
+        return imageList;
     }
 }
 
