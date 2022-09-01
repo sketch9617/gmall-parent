@@ -2,15 +2,14 @@ package com.atguigu.gmall.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
 public class Jsons {
     private static ObjectMapper mapper = new ObjectMapper();
     /**
-     * 把对象转为json字符串
-     * @param object
-     * @return
+     * 1.把对象转为json字符串
      */
     public static String toStr(Object object) {
         //jackson
@@ -23,13 +22,12 @@ public class Jsons {
     }
 
     /**
-     * 把json转为对象
-     * @param jsonStr
-     * @param clz
-     * @param <T>
-     * @return
+     * 2.把json转为对象
      */
     public static<T>  T toObj(String jsonStr, Class<T> clz) {
+        if(StringUtils.isEmpty(jsonStr)){
+            return null;
+        }
         T t = null;
         try {
             t = mapper.readValue(jsonStr, clz);
