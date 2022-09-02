@@ -24,7 +24,7 @@ public class SkuIdBloomInitService {
     @Autowired
     RedissonClient redissonClient;
 
-    //TODO 布隆重建
+    //TODO 布隆重建(bloom只增不减)
     /**
      * 项目一启动就运行
      */

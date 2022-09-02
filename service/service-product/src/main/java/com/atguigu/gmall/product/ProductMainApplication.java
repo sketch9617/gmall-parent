@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
@@ -18,7 +19,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @MapperScan("com.atguigu.gmall.product.mapper")
 @EnableSwagger2
 @EnableThreadPool
-@Import(RedissonAutoConfiguration.class)
 public class ProductMainApplication {
     public static void main(String[] args) {
         SpringApplication.run(ProductMainApplication.class, args);

@@ -3,7 +3,6 @@ package com.atguigu.gmall.item.service.impl;
 import com.atguigu.gmall.common.constant.SysRedisConst;
 import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.common.util.Jsons;
-import com.atguigu.gmall.item.cache.CacheOpsService;
 import com.atguigu.gmall.item.feign.SkuDetailFeignClient;
 import com.atguigu.gmall.item.service.SkuDetailService;
 import com.atguigu.gmall.model.product.SkuImage;
@@ -11,6 +10,8 @@ import com.atguigu.gmall.model.product.SkuInfo;
 import com.atguigu.gmall.model.product.SpuSaleAttr;
 import com.atguigu.gmall.model.to.CategoryViewTo;
 import com.atguigu.gmall.model.to.SkuDetailTo;
+import com.atguigu.starter.cache.annotation.GmallCache;
+import com.atguigu.starter.cache.service.CacheOpsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -45,6 +46,8 @@ public class SkuDetailServiceImpl implements SkuDetailService {
 
     Map<Long, ReentrantLock> lockPool = new ConcurrentHashMap<>();
     ReentrantLock lock = new ReentrantLock();
+
+
 
     //未使用缓存
     public SkuDetailTo getSkuDetailFromRpc(Long skuId) {
@@ -104,7 +107,7 @@ public class SkuDetailServiceImpl implements SkuDetailService {
         return detailTo;
     }
 
-    //redis缓存未加锁
+    //1.redis本地缓存+本地锁
     public SkuDetailTo getSkuDetail2(Long skuId) {
         //1、看缓存中有没有  sku:info:50
         String jsonStr = redisTemplate.opsForValue().get("sku:info:" + skuId);
@@ -134,8 +137,8 @@ public class SkuDetailServiceImpl implements SkuDetailService {
         return skuDetailTo;
     }
 
-    @Override
-    public SkuDetailTo getSkuDetail(Long skuId) {
+    //2.redis分布式缓存+布隆过滤器
+    public SkuDetailTo getSkuDetailWithCache(Long skuId) {
         String cacheKey = SysRedisConst.SKU_INFO_PREFIX +skuId;
         //1、先查缓存
         SkuDetailTo cacheData = cacheOpsService.getCacheData(cacheKey,SkuDetailTo.class);
@@ -170,5 +173,17 @@ public class SkuDetailServiceImpl implements SkuDetailService {
         }
         //4、缓存中有
         return cacheData;
+    }
+
+    @GmallCache(
+            cacheKey =SysRedisConst.SKU_INFO_PREFIX+"#{#params[0]}",
+            bloomName = SysRedisConst.BLOOM_SKUID,
+            bloomValue = "#{#params[0]}",
+            lockName = SysRedisConst.LOCK_SKU_DETAIL+"#{#params[0]}"
+    )
+    @Override
+    public SkuDetailTo getSkuDetail(Long skuId) {
+        SkuDetailTo fromRpc = getSkuDetailFromRpc(skuId);
+        return fromRpc;
     }
 }

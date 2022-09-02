@@ -40,5 +40,17 @@
             <version>31.1-jre</version>
         </dependency>
 
+        <!--切面编程-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!--自定义缓存starter-->
+        <dependency>
+            <groupId>com.atguigu.gmall</groupId>
+            <artifactId>mall-cache-starter</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 </project>
