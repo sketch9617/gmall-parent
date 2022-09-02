@@ -13,6 +13,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,6 +29,9 @@ public class CacheOpsServiceImpl implements CacheOpsService {
 
     @Autowired
     RedissonClient redissonClient;
+
+    //专门执行延迟任务的线程池
+    ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(4);
 
 
     /**
@@ -110,6 +115,24 @@ public class CacheOpsServiceImpl implements CacheOpsService {
     }
 
     @Override
+    public void saveData(String cacheKey, Object fromRpc, Long dataTtl) {
+        if(fromRpc == null){
+            //null值缓存短一点时间
+            redisTemplate.opsForValue().set(cacheKey,
+                    SysRedisConst.NULL_VAL,
+                    SysRedisConst.NULL_VAL_TTL,
+                    TimeUnit.SECONDS);
+        }else {
+            String str = Jsons.toStr(fromRpc);
+            redisTemplate.opsForValue().set(cacheKey,
+                    str,
+                    dataTtl,
+                    TimeUnit.SECONDS);
+        }
+    }
+
+
+    @Override
     public void unlock(Long skuId) {
         String lockKey = SysRedisConst.LOCK_SKU_DETAIL+skuId;
         RLock lock = redissonClient.getLock(lockKey);
@@ -122,5 +145,15 @@ public class CacheOpsServiceImpl implements CacheOpsService {
     public void unlock(String lockName) {
         RLock lock = redissonClient.getLock(lockName);
         lock.unlock(); //redisson已经防止了删别人锁
+    }
+
+    @Override
+    public void delay2Delete(String cacheKey) {
+        redisTemplate.delete(cacheKey);
+        //方式1:提交一个延迟任务。 断电失效。 结合后台管理系统，专门准备清空缓存的按钮功能
+        //方式2:分布式池框架。Redisson。感兴趣分布式异步任务的，找redisson api(扩展内容,自己实现)
+        scheduledExecutor.schedule(()->{
+            redisTemplate.delete(cacheKey);
+        },5,TimeUnit.SECONDS);
     }
 }

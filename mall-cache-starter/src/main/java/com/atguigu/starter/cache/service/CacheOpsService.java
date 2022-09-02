@@ -62,6 +62,14 @@ public interface CacheOpsService {
     void saveData(String cacheKey, Object fromRpc);
 
     /**
+     * 保存缓存,以秒为单位设置过期时间
+     * @param cacheKey
+     * @param fromRpc
+     * @param dataTtl
+     */
+    void saveData(String cacheKey, Object fromRpc,Long dataTtl);
+
+    /**
      * 解锁
      * @param skuId
      */
@@ -73,4 +81,10 @@ public interface CacheOpsService {
      * @param lockName
      */
     void unlock(String lockName);
+
+    /**
+     * 延迟双删
+     * @param cacheKey
+     */
+    void delay2Delete(String cacheKey);
 }
