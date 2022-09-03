@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin/product")
 public class SkuController {
 
-    // TODO: 2022/8/25
-
     @Autowired
     SkuInfoService skuInfoService;
 
@@ -57,5 +55,13 @@ public class SkuController {
     public Result cancelSale(@PathVariable("skuId")Long skuId){
         skuInfoService.cancelSale(skuId);
         return Result.ok();
+    }
+
+    /**
+     * 4.修改suk信息
+     */
+    public void updateSkuInfo(SkuInfo skuInfo){
+//        skuInfoService.updateSkuInfo(skuInfo);
+//        cacheOpsService.delay2Delete(skuInfo.getId());
     }
 }

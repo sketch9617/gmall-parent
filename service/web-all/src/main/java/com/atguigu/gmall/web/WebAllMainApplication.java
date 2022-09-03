@@ -10,7 +10,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @description
  */
 @SpringCloudApplication
-@EnableFeignClients //远程调用其他微服务
+@EnableFeignClients(basePackages = {
+        "com.atguigu.gmall.feign.item",
+        "com.atguigu.gmall.feign.product"
+}) //只会扫描主程序所在的子包
 public class WebAllMainApplication {
     public static void main(String[] args) {
         SpringApplication.run(WebAllMainApplication.class, args);

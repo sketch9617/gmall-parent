@@ -1,4 +1,4 @@
-package com.atguigu.gmall.web.feign;
+package com.atguigu.gmall.feign.product;
 
 import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.model.to.CategoryTreeTo;
@@ -10,11 +10,11 @@ import java.util.List;
 
 /**
  * @author sketch
- * @date 2022/8/26 17:53
- * @description 远程调用 service-product 微服务的功能
+ * @date 2022/9/3 18:13
+ * @description
  */
-@FeignClient("service-product")
 @RequestMapping("/api/inner/rpc/product")
+@FeignClient("service-product")
 public interface CategoryFeignClient {
     @GetMapping("/category/tree")
     Result<List<CategoryTreeTo>> getAllCategoryWithTree();
