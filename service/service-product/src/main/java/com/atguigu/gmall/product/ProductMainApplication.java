@@ -7,6 +7,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -15,6 +16,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @author sketch
  * @date 2022/8/22 20:51
  */
+@EnableFeignClients(basePackages = {
+        "com.atguigu.gmall.feign.search"
+})
 @SpringCloudApplication
 @MapperScan("com.atguigu.gmall.product.mapper")
 @EnableSwagger2
