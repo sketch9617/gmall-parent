@@ -10,12 +10,12 @@ import lombok.Data;
 
 @Data
 public class SearchParamVo {
-    Long category3Id;
     Long category1Id;
     Long category2Id;
+    Long category3Id;
     String keyword;
-    String[] props;
     String trademark;
-    String order;
-    Integer pageNo;
+    String[] props;
+    String order = "1:desc";
+    Integer pageNo = 1;
 }

@@ -1,6 +1,8 @@
 package com.atguigu.gmall.search.service;
 
 import com.atguigu.gmall.model.list.Goods;
+import com.atguigu.gmall.model.vo.SearchParamVo;
+import com.atguigu.gmall.model.vo.SearchResponseVo;
 
 /**
  * @author sketch
@@ -17,4 +19,9 @@ public interface GoodsService {
      * 2.下架商品
      */
     void deleteGoods(Long skuId);
+
+    /**
+     * 3.商品搜索
+     */
+    SearchResponseVo search(SearchParamVo paramVo);
 }
