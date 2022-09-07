@@ -22,7 +22,10 @@ public class SkuDetailApiController {
 
     @GetMapping("/skudetail/{skuId}")
     public Result<SkuDetailTo> getSkuDetail(@PathVariable("skuId") Long skuId) {
+        //查询商品详细
         SkuDetailTo skuDetailTo = skuDetailService.getSkuDetail(skuId);
+        //更新热度分(每100次)
+        skuDetailService.updateHotScore(skuId);
         return Result.ok(skuDetailTo);
     }
 }
