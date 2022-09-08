@@ -6,5 +6,4 @@ package com.atguigu.gmall.item;
  * @description
  */
 public class RedisTest {
-    // TODO: 2022/8/29  
 }
