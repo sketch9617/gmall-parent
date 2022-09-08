@@ -63,7 +63,3 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo>
         redisTemplate.delete(token);
     }
 }
-
-
-
-
