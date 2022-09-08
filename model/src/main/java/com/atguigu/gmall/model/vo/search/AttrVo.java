@@ -1,4 +1,4 @@
-package com.atguigu.gmall.model.vo;
+package com.atguigu.gmall.model.vo.search;
 import lombok.Data;
 
 import java.util.List;

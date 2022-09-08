@@ -2,8 +2,8 @@ package com.atguigu.gmall.search.api;
 
 import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.model.list.Goods;
-import com.atguigu.gmall.model.vo.SearchParamVo;
-import com.atguigu.gmall.model.vo.SearchResponseVo;
+import com.atguigu.gmall.model.vo.search.SearchParamVo;
+import com.atguigu.gmall.model.vo.search.SearchResponseVo;
 import com.atguigu.gmall.search.service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

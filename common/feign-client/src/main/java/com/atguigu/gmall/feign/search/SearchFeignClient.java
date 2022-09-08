@@ -2,8 +2,8 @@ package com.atguigu.gmall.feign.search;
 
 import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.model.list.Goods;
-import com.atguigu.gmall.model.vo.SearchParamVo;
-import com.atguigu.gmall.model.vo.SearchResponseVo;
+import com.atguigu.gmall.model.vo.search.SearchParamVo;
+import com.atguigu.gmall.model.vo.search.SearchResponseVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 

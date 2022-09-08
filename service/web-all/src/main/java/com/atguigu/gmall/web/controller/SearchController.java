@@ -2,8 +2,8 @@ package com.atguigu.gmall.web.controller;
 
 import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.feign.search.SearchFeignClient;
-import com.atguigu.gmall.model.vo.SearchParamVo;
-import com.atguigu.gmall.model.vo.SearchResponseVo;
+import com.atguigu.gmall.model.vo.search.SearchParamVo;
+import com.atguigu.gmall.model.vo.search.SearchResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

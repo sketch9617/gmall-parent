@@ -1,8 +1,8 @@
 package com.atguigu.gmall.search.service;
 
 import com.atguigu.gmall.model.list.Goods;
-import com.atguigu.gmall.model.vo.SearchParamVo;
-import com.atguigu.gmall.model.vo.SearchResponseVo;
+import com.atguigu.gmall.model.vo.search.SearchParamVo;
+import com.atguigu.gmall.model.vo.search.SearchResponseVo;
 
 /**
  * @author sketch

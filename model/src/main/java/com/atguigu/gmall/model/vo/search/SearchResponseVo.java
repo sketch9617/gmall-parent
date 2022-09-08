@@ -1,4 +1,4 @@
-package com.atguigu.gmall.model.vo;
+package com.atguigu.gmall.model.vo.search;
 
 import com.atguigu.gmall.model.list.Goods;
 import com.atguigu.gmall.model.list.SearchAttr;
