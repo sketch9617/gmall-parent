@@ -88,7 +88,6 @@ public class GlobalAuthFilter implements GlobalFilter {
         String tokenValue = getTokenValue(exchange);
         UserInfo info = getTokenUserInfo(tokenValue);
         if (!StringUtils.isEmpty(tokenValue) && info == null) {
-
             return redirectToCustomPage(urlProperties.getLoginPage() + "?originUrl=" + uri, exchange);
         }
 
@@ -187,7 +186,7 @@ public class GlobalAuthFilter implements GlobalFilter {
             return tokenValue;
         }
 
-        //2、说明cookie中没有
+        //2、说明cookie中没有,去header找
         tokenValue = exchange.getRequest()
                 .getHeaders()
                 .getFirst("token");
