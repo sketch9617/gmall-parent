@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.*;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -20,14 +19,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 
-/**
- * @author sketch
- * @date 2022/9/8 18:33
- * @description
- */
 @Slf4j
 @Component
 public class GlobalAuthFilter implements GlobalFilter {
@@ -41,63 +37,91 @@ public class GlobalAuthFilter implements GlobalFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
-        //1.获取请求路径
+        //1、获取请求路径
         String path = exchange.getRequest().getURI().getPath();
         String uri = exchange.getRequest().getURI().toString();
         log.info("{} 请求开始", path);
 
-        //2.无需登录的资源->直接放行
+
+        //2、无需登录就能访问的资源； 直接放行。
         for (String url : urlProperties.getNoAuthUrl()) {
             boolean match = matcher.match(url, path);
-            if (match) {
+            if(match) {
                 return chain.filter(exchange);
             }
         }
+        //静态资源虽然带了token。不用校验token，直接放
 
-        //3.浏览器/api/inner请求->全部拒绝
+        //能走到这儿，说明不是直接放行的资源
+
+        //3、只要是 /api/inner/的全部拒绝
         for (String url : urlProperties.getDenyUrl()) {
             boolean match = matcher.match(url, path);
-            if (match) {
-                //直接响应json数据
+            if(match){
+                //直接响应json数据即可
                 Result<String> result = Result.build("", ResultCodeEnum.PERMISSION);
-                return responseResult(result, exchange);
+                return responseResult(result,exchange);
             }
         }
 
-        //4.需要登录的请求->权限验证
+        //4、需要登录的请求； 进行权限验证
         for (String url : urlProperties.getLoginAuthUrl()) {
             boolean match = matcher.match(url, path);
-            if (match) {
-                //获取token
+            if(match){
+                //登录等校验
+                //3.1、 获取 token 信息【Cookie[token=xxx]】【Header[token=xxx]】
                 String tokenValue = getTokenValue(exchange);
-                //校验token
+                //3.2、 校验 token
                 UserInfo info = getTokenUserInfo(tokenValue);
-                //判断用户信息是否正确
-                if (info != null) {
-                    //redis中存在此用户
+                //3.3、 判断用户信息是否正确
+                if(info != null){
+                    //Redis中有此用户。exchange里面的request的头会新增一个userid
                     ServerWebExchange webExchange = userIdOrTempIdTransport(info, exchange);
                     return chain.filter(webExchange);
-                } else {
-                    //redis无此用户
-                    return redirectToCustomPage(urlProperties.getLoginPage() + "?originUrl=" + uri, exchange);
+                }else {
+                    //redis中无此用户【假令牌、token没有，没登录】
+                    //重定向到登录页
+                    return redirectToCustomPage(urlProperties.getLoginPage()+"?originUrl="+uri,exchange);
                 }
             }
         }
 
-        //5.假请求,重定向登录
+        //能走到这儿，既不是静态资源直接放行，也不是必须登录才能访问的，就一普通请求
+        //普通请求只要带了 token，说明可能登录了。只要登录了，就透传用户id。
         String tokenValue = getTokenValue(exchange);
         UserInfo info = getTokenUserInfo(tokenValue);
-        if (!StringUtils.isEmpty(tokenValue) && info == null) {
-            return redirectToCustomPage(urlProperties.getLoginPage() + "?originUrl=" + uri, exchange);
+        if(!StringUtils.isEmpty(tokenValue) && info == null){
+            //假请求直接打回登录
+            return redirectToCustomPage(urlProperties.getLoginPage()+"?originUrl="+uri,exchange);
         }
-
-        //6.普通请求->透传用户id
+        //普通请求，透传用户id或者临时id
         exchange = userIdOrTempIdTransport(info, exchange);
         return chain.filter(exchange);
     }
 
     /**
-     * 5.用户id透传
+     * 响应一个结果
+     * @param result
+     * @param exchange
+     * @return
+     */
+    private Mono<Void> responseResult(Result<String> result, ServerWebExchange exchange) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.OK);
+        String jsonStr = Jsons.toStr(result);
+
+        //DataBuffer
+        DataBuffer dataBuffer = response.bufferFactory()
+                .wrap(jsonStr.getBytes());
+        //Publisher<? extends DataBuffer> body
+
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+        return response.writeWith(Mono.just(dataBuffer));
+    }
+
+    /**1、用户id透传
+     * 2、再看看前端有没有带临时id，如果带了顺便透传一下
      */
     private ServerWebExchange userIdOrTempIdTransport(UserInfo info, ServerWebExchange exchange) {
         //请求一旦发来，所有的请求数据是固定的，不能进行任何修改，只能读取
@@ -121,7 +145,7 @@ public class GlobalAuthFilter implements GlobalFilter {
     }
 
     /**
-     * 6.获取临时id
+     * 获取临时id
      */
     private String getUserTempId(ServerWebExchange exchange) {
         ServerHttpRequest request = exchange.getRequest();
@@ -138,7 +162,7 @@ public class GlobalAuthFilter implements GlobalFilter {
     }
 
     /**
-     * 4.重定向到指定路径
+     * 重定向到指定位置
      */
     private Mono<Void> redirectToCustomPage(String location, ServerWebExchange exchange) {
         ServerHttpResponse response = exchange.getResponse();
@@ -162,7 +186,7 @@ public class GlobalAuthFilter implements GlobalFilter {
     }
 
     /**
-     * 3.根据token的值去redis中查到用户信息
+     * 根据token的值去redis中查到 用户信息
      */
     private UserInfo getTokenUserInfo(String tokenValue) {
         String json = redisTemplate.opsForValue().get(SysRedisConst.LOGIN_USER + tokenValue);
@@ -173,9 +197,10 @@ public class GlobalAuthFilter implements GlobalFilter {
     }
 
     /**
-     * 2.从cookie或请求头中取到token对应的值
+     * 从cookie或请求头中取到  token 对应的值
      */
     private String getTokenValue(ServerWebExchange exchange) {
+        //由于前端乱写，到处可能都有【Cookie[token=xxx]】【Header[token=xxx]】
         //1、先检查Cookie中有没有这个 token
         String tokenValue = "";
         HttpCookie token = exchange.getRequest()
@@ -186,7 +211,7 @@ public class GlobalAuthFilter implements GlobalFilter {
             return tokenValue;
         }
 
-        //2、说明cookie中没有,去header找
+        //2、说明cookie中没有
         tokenValue = exchange.getRequest()
                 .getHeaders()
                 .getFirst("token");
@@ -195,15 +220,28 @@ public class GlobalAuthFilter implements GlobalFilter {
     }
 
     /**
-     * 1.响应一个结果
+     * StreamAPI
      */
-    private Mono<Void> responseResult(Result<String> result, ServerWebExchange exchange) {
-        ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.OK);
-        String jsonStr = Jsons.toStr(result);
+    public void haha(String[] args) throws InterruptedException
+    {
+        System.out.println("我的线程："+Thread.currentThread());
+        Flux<Long> flux = Flux.interval(Duration.ofSeconds(1));
 
-        DataBuffer dataBuffer = response.bufferFactory().wrap(jsonStr.getBytes());
-        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        return response.writeWith(Mono.just(dataBuffer));
+        //2、数据订阅者，感兴趣发布者的数据
+        flux.subscribe((t) -> {
+            System.out.println("消费者1：" + t + ":"+Thread.currentThread());
+
+        });
+
+
+        flux.subscribe((t) -> {
+            System.out.println("消费者2：" + t +":"+Thread.currentThread());
+        });
+
+
+        flux.subscribe((t) -> {
+            System.out.println("消费者3：" + t +":"+Thread.currentThread());
+        });
+        Thread.sleep(10000000L);
     }
 }

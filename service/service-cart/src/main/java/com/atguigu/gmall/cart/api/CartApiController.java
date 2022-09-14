@@ -1,8 +1,10 @@
 package com.atguigu.gmall.cart.api;
 
 import com.atguigu.gmall.cart.service.CartService;
+import com.atguigu.gmall.common.auth.AuthUtils;
 import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.model.product.SkuInfo;
+import com.atguigu.gmall.model.vo.user.UserAuthInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,9 @@ public class CartApiController {
     @GetMapping("/addToCart")
     public Result<SkuInfo> addToCart(@RequestParam("skuId") Long skuId,
                                      @RequestParam("num") Integer num){
+
+        UserAuthInfo authInfo = AuthUtils.getCurrentAuthInfo();
+        log.info("用户id:{}, 临时id:{}", authInfo.getUserId(), authInfo.getUserTempId());
         SkuInfo skuInfo = cartService.addToCart(skuId,num);
         return Result.ok(skuInfo);
     }

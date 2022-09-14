@@ -72,7 +72,6 @@ public class CartServiceImpl implements CartService {
         return cartKey;
     }
 
-
     @Override
     public SkuInfo addItemToCart(Long skuId, Integer num, String cartKey) {
         // key(cartKey) - hash(skuId - skuInfo)
@@ -152,7 +151,7 @@ public class CartServiceImpl implements CartService {
         executor.submit( ()->  {
             //2、绑定请求到到这个线程
             RequestContextHolder.setRequestAttributes(requestAttributes);
-            updateCartAllItemsPrice(cartKey,infos);
+            updateCartAllItemsPrice(cartKey);
             //3、移除数据
             RequestContextHolder.resetRequestAttributes();
         });
@@ -242,25 +241,28 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void updateCartAllItemsPrice(String cartKey, List<CartInfo> cartInfos) {
+    public void updateCartAllItemsPrice(String cartKey) {
         BoundHashOperations<String, String, String> cartOps =
                 redisTemplate.boundHashOps(cartKey);
 
         System.out.println("更新价格启动："+Thread.currentThread());
         //200个商品  4s
-        cartInfos.stream()
-                .forEach(cartInfo -> {
+        //fix:如果传入了要更新的List,会导致延迟更新问题,覆盖掉删除
+        cartOps.values().stream()
+                .map(str ->
+                        Jsons.toObj(str, CartInfo.class)
+                ).forEach(cartInfo -> {
                     //1、查出最新价格  15ms
                     Result<BigDecimal> price = skuFeignClient.getSku1010Price(cartInfo.getSkuId());
                     //2、设置新价格
                     cartInfo.setSkuPrice(price.getData());
                     cartInfo.setUpdateTime(new Date());
-                    //3、更新购物车价格  5ms
-                    cartOps.put(cartInfo.getSkuId().toString(),Jsons.toStr(cartInfo));
+                    //3、更新购物车价格  5ms。给购物车存数据之前再做一个校验。
+                    if(cartOps.hasKey(cartInfo.getSkuId().toString())){
+                        cartOps.put(cartInfo.getSkuId().toString(), Jsons.toStr(cartInfo));
+                    }
                 });
         System.out.println("更新价格结束："+Thread.currentThread());
-
-
     }
 
     /**
