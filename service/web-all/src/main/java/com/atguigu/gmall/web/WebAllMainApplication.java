@@ -1,5 +1,6 @@
 package com.atguigu.gmall.web;
 
+import com.atguigu.gmall.common.annotation.EnableAutoFeignInterceptor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -9,6 +10,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @date 2022/8/26 11:26
  * @description
  */
+@EnableAutoFeignInterceptor
 @SpringCloudApplication
 @EnableFeignClients(basePackages = {
         "com.atguigu.gmall.feign.item",

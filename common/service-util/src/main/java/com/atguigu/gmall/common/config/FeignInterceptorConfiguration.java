@@ -1,4 +1,4 @@
-package com.atguigu.gmall.web.config;
+package com.atguigu.gmall.common.config;
 
 import com.atguigu.gmall.common.constant.SysRedisConst;
 import feign.RequestInterceptor;
@@ -8,23 +8,17 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
-/**
- * @author sketch
- * @date 2022/9/8 20:48
- * @description 已抽取至service-util
- */
 @Configuration
-public class WebAllConfiguration {
+public class FeignInterceptorConfiguration {
+
     /**
      * 把用户id带到feign即将发起的新请求中
      */
-
-   /*@Bean
+    @Bean
     public RequestInterceptor userHeaderInterceptor(){
-
         return (template)-> {
             //修改请求模板
-            System.out.println("web-all拦截器");
+            System.out.println("拦截器");
             //随时调用，获取老请求。
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             HttpServletRequest request = attributes.getRequest();
@@ -36,5 +30,5 @@ public class WebAllConfiguration {
             String tempId = request.getHeader(SysRedisConst.USERTEMPID_HEADER);
             template.header(SysRedisConst.USERTEMPID_HEADER,tempId);
         };
-    }*/
+    }
 }
