@@ -39,7 +39,7 @@ public class OrderApiController {
     }
 
     /**
-     * 获取某个订单数据
+     * 下单后获取某个订单数据
      */
     @GetMapping("/info/{orderId}")
     public Result<OrderInfo> getOrderInfo(@PathVariable("orderId") Long orderId){

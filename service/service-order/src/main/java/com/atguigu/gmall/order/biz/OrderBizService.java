@@ -1,6 +1,7 @@
 package com.atguigu.gmall.order.biz;
 
 import com.atguigu.gmall.model.vo.order.OrderConfirmDataVo;
+import com.atguigu.gmall.model.vo.order.OrderSubmitVo;
 
 /**
  * @author sketch
@@ -20,4 +21,14 @@ public interface OrderBizService {
      * 2、作为防重令牌
      */
     String generateTradeNo();
+
+    /**
+     * 提交订单
+     */
+    Long submitOrder(OrderSubmitVo submitVo, String tradeNo);
+
+    /**
+     * 校验令牌
+     */
+    boolean checkTradeNo(String tradeNo);
 }
