@@ -13,10 +13,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableAutoFeignInterceptor
 @SpringCloudApplication
 @EnableFeignClients(basePackages = {
-        "com.atguigu.gmall.feign.item",
-        "com.atguigu.gmall.feign.product",
-        "com.atguigu.gmall.feign.search",
-        "com.atguigu.gmall.feign.cart"
+        "com.atguigu.gmall.feign"
 }) //只会扫描主程序所在的子包
 public class WebAllMainApplication {
     public static void main(String[] args) {

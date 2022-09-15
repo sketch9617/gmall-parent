@@ -21,7 +21,7 @@ public class IndexController {
     @Autowired
     CategoryFeignClient categoryFeignClient;
 
-    @GetMapping({"/", "/index"})
+    @GetMapping({"/", "/index","/index.html"})
     public String indexPage(Model model) {
         //远程调用product服务,查询所有分类
         Result<List<CategoryTreeTo>> result = categoryFeignClient.getAllCategoryWithTree();
