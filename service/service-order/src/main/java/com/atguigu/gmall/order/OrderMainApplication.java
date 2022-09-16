@@ -1,5 +1,6 @@
 package com.atguigu.gmall.order;
 
+import com.atguigu.gmall.annotation.EnableAppRabbit;
 import com.atguigu.gmall.common.annotation.EnableAutoExceptionHandler;
 import com.atguigu.gmall.common.annotation.EnableAutoFeignInterceptor;
 import org.mybatis.spring.annotation.MapperScan;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @date 2022/9/14 20:46
  * @description
  */
+@EnableAppRabbit
 @SpringCloudApplication
 @MapperScan("com.atguigu.gmall.order.mapper")
 @EnableFeignClients({

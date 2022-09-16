@@ -31,4 +31,9 @@ public interface OrderBizService {
      * 校验令牌
      */
     boolean checkTradeNo(String tradeNo);
+
+    /**
+     * 关闭订单
+     */
+    void closeOrder(Long orderId, Long userId);
 }

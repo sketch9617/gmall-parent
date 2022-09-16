@@ -3,15 +3,18 @@ package com.atguigu.gmall.order.service.impl;
 import com.atguigu.gmall.common.auth.AuthUtils;
 import com.atguigu.gmall.common.constant.SysRedisConst;
 import com.atguigu.gmall.common.util.Jsons;
+import com.atguigu.gmall.constant.MqConst;
 import com.atguigu.gmall.model.enums.OrderStatus;
 import com.atguigu.gmall.model.enums.ProcessStatus;
 import com.atguigu.gmall.model.order.OrderDetail;
 import com.atguigu.gmall.model.order.OrderInfo;
+import com.atguigu.gmall.model.to.mq.OrderMsg;
 import com.atguigu.gmall.model.vo.order.OrderSubmitVo;
 import com.atguigu.gmall.order.service.OrderDetailService;
 import com.atguigu.gmall.order.service.OrderInfoService;
 import com.atguigu.gmall.order.mapper.OrderInfoMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +36,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     OrderInfoMapper orderInfoMapper;
     @Autowired
     OrderDetailService orderDetailService;
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     @Transactional //数据库成功 + 消息成功
     @Override
@@ -47,6 +52,14 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         //所有订单明细
         List<OrderDetail> details = prepareOrderDetail(submitVo,orderInfo);
         orderDetailService.saveBatch(details);
+
+        //发送订单创建完成消息
+        OrderMsg orderMsg = new OrderMsg(orderInfo.getId(),orderInfo.getUserId());
+        rabbitTemplate.convertAndSend(
+                MqConst.EXCHANGE_ORDER_EVNT,
+                MqConst.RK_ORDER_CREATED,
+                Jsons.toStr(orderMsg)
+        );
 
         //3、返回订单id
         return orderInfo.getId();
