@@ -33,6 +33,12 @@ public class OrderCloseListener {
     @Autowired
     OrderBizService orderBizService;
 
+    public OrderCloseListener(StringRedisTemplate redisTemplate,
+                              OrderBizService orderBizService){
+        this.redisTemplate = redisTemplate;
+        this.orderBizService = orderBizService;
+    }
+
     @RabbitListener(queues = MqConst.QUEUE_ORDER_DEAD)
     public void orderClose(Message message, Channel channel) throws IOException {
         long tag = message.getMessageProperties().getDeliveryTag();

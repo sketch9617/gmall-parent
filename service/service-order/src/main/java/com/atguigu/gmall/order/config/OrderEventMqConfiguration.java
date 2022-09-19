@@ -51,7 +51,7 @@ public class OrderEventMqConfiguration {
          */
         Map<String, Object> arguments = new HashMap<>();
         //设置延迟队列参数
-        arguments.put("x-message-ttl", 5000);//SysRedisConst.ORDER_CLOSE_TTL*1000
+        arguments.put("x-message-ttl", SysRedisConst.ORDER_CLOSE_TTL*1000);//SysRedisConst.ORDER_CLOSE_TTL*1000
         arguments.put("x-dead-letter-exchange",MqConst.EXCHANGE_ORDER_EVNT);
         arguments.put("x-dead-letter-routing-key",MqConst.RK_ORDER_DEAD);
 
